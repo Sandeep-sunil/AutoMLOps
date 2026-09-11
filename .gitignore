@@ -21,9 +21,14 @@ mlruns/
 .DS_Store
 Thumbs.db
 
-# Test/cache
+# Testing
 .pytest_cache/
 .coverage
 
 # Logs
 *.log
+
+# Generated model artifacts
+artifacts/
+
+data/
