@@ -1,0 +1,166 @@
+
+<!-- File: templates/mlops/model_list.html -->
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Models & Pipelines | AutoMLOps{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="{% url 'dashboard_home' %}">
+            <span class="sidebar-logo">A</span>
+            <span>AutoMLOps</span>
+        </a>
+
+        <p class="nav-heading">WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="{% url 'dashboard_home' %}">
+                <span>▦</span> Overview
+            </a>
+            <a class="nav-item active" href="{% url 'model_list' %}">
+                <span>◈</span> Models & Pipelines
+            </a>
+            <a class="nav-item" href="{% url 'dashboard_home' %}#monitoring">
+                <span>◉</span> Monitoring & Alerts
+            </a>
+            <a class="nav-item" href="{% url 'dashboard_home' %}#incidents">
+                <span>⚠</span> Incidents
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-avatar">
+                {{ request.user.username|first|upper }}
+            </div>
+            <div class="user-details">
+                <strong>{{ request.user.username }}</strong>
+                <span>Authenticated user</span>
+            </div>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout-button" type="submit"
+                        title="Sign out">↗</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">WORKSPACE / ML OPERATIONS</p>
+                <h1>Models & Pipelines</h1>
+            </div>
+            <a class="environment-badge"
+               href="/admin/mlops/mlmodel/add/">
+                + Register Model
+            </a>
+        </header>
+
+        <section class="metrics-grid">
+            <article class="metric-card">
+                <div class="metric-top">Registered Models</div>
+                <div class="metric-value">{{ total_models }}</div>
+                <p class="metric-caption">Database records</p>
+            </article>
+
+            <article class="metric-card">
+                <div class="metric-top">Healthy Models</div>
+                <div class="metric-value">{{ healthy_models }}</div>
+                <p class="metric-caption">Marked healthy</p>
+            </article>
+
+            <article class="metric-card">
+                <div class="metric-top">Active Pipelines</div>
+                <div class="metric-value">{{ active_pipelines }}</div>
+                <p class="metric-caption">Pending or running</p>
+            </article>
+
+            <article class="metric-card">
+                <div class="metric-top">Registered Versions</div>
+                <div class="metric-value">{{ total_models }}</div>
+                <p class="metric-caption">Each record is one version</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Registered ML Models</h3>
+                    <p>Models stored in the AutoMLOps database</p>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;
+                              text-align: left; font-size: 12px;">
+                    <thead>
+                        <tr style="color: #7d889b;">
+                            <th style="padding: 13px 8px;">Model</th>
+                            <th style="padding: 13px 8px;">Version</th>
+                            <th style="padding: 13px 8px;">Framework</th>
+                            <th style="padding: 13px 8px;">Status</th>
+                            <th style="padding: 13px 8px;">Pipelines</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for model in models %}
+                        <tr style="border-top: 1px solid #edf0f5;">
+                            <td style="padding: 16px 8px;">
+                                <strong>{{ model.name }}</strong>
+                                {% if model.description %}
+                                <div style="margin-top: 5px;
+                                            color: #8993a7;">
+                                    {{ model.description|truncatechars:65 }}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 16px 8px;">
+                                v{{ model.version }}
+                            </td>
+                            <td style="padding: 16px 8px;">
+                                {{ model.framework }}
+                            </td>
+                            <td style="padding: 16px 8px;">
+                                <span class="status-pill
+                                {% if model.status == 'healthy' %}
+                                    status-healthy
+                                {% elif model.status == 'degraded'
+                                   or model.status == 'failed' %}
+                                    status-warning
+                                {% else %}
+                                    status-neutral
+                                {% endif %}">
+                                    {{ model.get_status_display }}
+                                </span>
+                            </td>
+                            <td style="padding: 16px 8px;">
+                                {{ model.pipeline_count }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5"
+                                style="padding: 30px 8px;
+                                       text-align: center;
+                                       color: #8993a7;">
+                                No models registered yet.
+                                Add one through Django Admin.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+{% endblock %}

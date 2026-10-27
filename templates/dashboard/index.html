@@ -1,0 +1,214 @@
+
+<!-- File: templates/dashboard/index.html -->
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard | AutoMLOps{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="{% url 'dashboard_home' %}">
+            <span class="sidebar-logo">A</span>
+            <span>AutoMLOps</span>
+        </a>
+
+        <p class="nav-heading">WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item active" href="{% url 'dashboard_home' %}">
+                <span>▦</span> Overview
+            </a>
+            <a class="nav-item" href="{% url 'model_list' %}">
+                <span>◈</span> Models & Pipelines
+            </a>
+            <a class="nav-item" href="#monitoring">
+                <span>◉</span> Monitoring & Alerts
+            </a>
+            <a class="nav-item" href="#incidents">
+                <span>⚠</span> Incidents
+            </a>
+            <a class="nav-item" href="#remediation">
+                <span>↻</span> Remediation
+            </a>
+        </nav>
+
+        <p class="nav-heading governance-heading">GOVERNANCE</p>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="#approvals">
+                <span>✓</span> Decisions & Approvals
+            </a>
+            <a class="nav-item" href="#audit">
+                <span>≡</span> Audit & Memory
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-avatar">
+                {{ request.user.username|first|upper }}
+            </div>
+            <div class="user-details">
+                <strong>{{ request.user.username }}</strong>
+                <span>Authenticated user</span>
+            </div>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout-button" type="submit"
+                        title="Sign out">↗</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">WORKSPACE / OVERVIEW</p>
+                <h1>System Overview</h1>
+            </div>
+            <div class="environment-badge">
+                <span class="online-dot"></span>
+                Development Environment
+            </div>
+        </header>
+
+        <section class="welcome-section">
+            <div>
+                <p class="section-eyebrow">ML OPERATIONS CENTER</p>
+                <h2>Welcome back, {{ request.user.username }}.</h2>
+                <p>Monitor model health, investigate failures, and
+                   coordinate reliable recovery.</p>
+            </div>
+            <div class="welcome-symbol">⌘</div>
+        </section>
+
+        <section class="metrics-grid">
+
+            <article class="metric-card">
+                <div class="metric-top">
+                    <span>Total Models</span>
+                    <span class="metric-icon purple">◈</span>
+                </div>
+                <div class="metric-value">{{ total_models }}</div>
+                <p class="metric-caption">Registered models</p>
+            </article>
+
+            <article class="metric-card">
+                <div class="metric-top">
+                    <span>Healthy Models</span>
+                    <span class="metric-icon green">✓</span>
+                </div>
+                <div class="metric-value">{{ healthy_models }}</div>
+                <p class="metric-caption">Sample healthy status</p>
+            </article>
+
+            <article class="metric-card">
+                <div class="metric-top">
+                    <span>Active Incidents</span>
+                    <span class="metric-icon red">!</span>
+                </div>
+                <div class="metric-value">{{ active_incidents }}</div>
+                <p class="metric-caption">Require investigation</p>
+            </article>
+
+            <article class="metric-card">
+                <div class="metric-top">
+                    <span>Drift Alerts</span>
+                    <span class="metric-icon amber">⌁</span>
+                </div>
+                <div class="metric-value">{{ drift_alerts }}</div>
+                <p class="metric-caption">Sample drift alerts</p>
+            </article>
+
+        </section>
+
+        <section class="content-grid">
+
+            <article class="panel" id="monitoring">
+                <div class="panel-header">
+                    <div>
+                        <h3>ML System Health</h3>
+                        <p>Illustrative overview of system status</p>
+                    </div>
+                    <span class="live-label">
+                        <span class="online-dot"></span> Demo
+                    </span>
+                </div>
+
+                <div class="health-row">
+                    <div class="health-indicator healthy"></div>
+                    <div class="health-description">
+                        <strong>Model availability</strong>
+                        <span>Sample status: operational</span>
+                    </div>
+                    <span class="status-pill status-healthy">Healthy</span>
+                </div>
+
+                <div class="health-row">
+                    <div class="health-indicator warning"></div>
+                    <div class="health-description">
+                        <strong>Data drift monitoring</strong>
+                        <span>Sample drift alert detected</span>
+                    </div>
+                    <span class="status-pill status-warning">Review</span>
+                </div>
+
+                <div class="health-row">
+                    <div class="health-indicator neutral"></div>
+                    <div class="health-description">
+                        <strong>Pipeline execution</strong>
+                        <span>Live pipeline integration pending</span>
+                    </div>
+                    <span class="status-pill status-neutral">Pending</span>
+                </div>
+            </article>
+
+            <article class="panel" id="incidents">
+                <div class="panel-header">
+                    <div>
+                        <h3>Incident Summary</h3>
+                        <p>Current demonstration metrics</p>
+                    </div>
+                    <span class="incident-count">
+                        {{ active_incidents }} active
+                    </span>
+                </div>
+
+                <div class="incident-highlight">
+                    <div class="incident-symbol">!</div>
+                    <div>
+                        <strong>Investigation required</strong>
+                        <p>Sample incidents are displayed here.
+                           Real incident tracking is not connected yet.</p>
+                    </div>
+                </div>
+
+                <div class="remediation-summary" id="remediation">
+                    <div>
+                        <span>Remediations today</span>
+                        <strong>{{ remediations_today }}</strong>
+                    </div>
+                    <span class="status-pill status-neutral">Demo data</span>
+                </div>
+            </article>
+
+        </section>
+
+        <footer class="dashboard-footer">
+            <span>AutoMLOps · Agentic ML Lifecycle Management</span>
+            <span>Dashboard prototype · Sample metrics</span>
+        </footer>
+
+    </main>
+</div>
+
+{% endblock %}

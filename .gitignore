@@ -1,34 +1,42 @@
-# Virtual environment
-.venv/
+
+# File: .gitignore
 
 # Python
 __pycache__/
 *.py[cod]
+*.pyd
+*.egg-info/
+.pytest_cache/
 
-# Environment variables
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Django
+*.log
+local_settings.py
+
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
 
-# MLflow
-mlruns/
+# Local databases
+db.sqlite3
+*.sqlite3
 
-# Jupyter
-.ipynb_checkpoints/
+# Generated ML artifacts
+*.joblib
+*.pkl
+*.pickle
 
-# IDE
+# IDE and operating system
 .vscode/
-
-# OS
+.idea/
 .DS_Store
 Thumbs.db
 
-# Testing
-.pytest_cache/
+# Generated test and coverage files
 .coverage
-
-# Logs
-*.log
-
-# Generated model artifacts
-artifacts/
-
-data/
+htmlcov/
